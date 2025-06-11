@@ -8,13 +8,23 @@ from flask_cors import CORS
 from src.models.user import db
 from src.routes.user import user_bp
 from src.routes.tracking import tracking_bp
+from src.routes.health import health_bp
+from src.config import config, setup_logging
+from src.utils.validation import limiter, add_security_headers
 
 app = Flask(__name__, static_folder=os.path.join(os.path.dirname(__file__), 'static'))
-app.config['SECRET_KEY'] = 'asdf#FGSgvasgf$5$WGT'
 
-# Enable CORS for all routes
+# Load configuration based on environment
+config_name = os.environ.get('FLASK_ENV', 'development')
+app.config.from_object(config[config_name])
+setup_logging(app)
+
+# Initialize rate limiter
+limiter.init_app(app)
+
+# Enable CORS with secure configuration
 CORS(app, 
-     origins=["http://localhost:5173", "http://127.0.0.1:5173", "*"], 
+     origins=app.config['CORS_ORIGINS'], 
      allow_headers=["Content-Type", "Authorization"], 
      methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
      supports_credentials=True)
@@ -22,10 +32,11 @@ CORS(app,
 # Register blueprints
 app.register_blueprint(user_bp, url_prefix='/api')
 app.register_blueprint(tracking_bp, url_prefix='/api')
+app.register_blueprint(health_bp, url_prefix='/api')
 
 # Database configuration
-app.config['SQLALCHEMY_DATABASE_URI'] = f"sqlite:///{os.path.join(os.path.dirname(__file__), 'database', 'app.db')}"
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['SQLALCHEMY_DATABASE_URI'] = app.config['SQLALCHEMY_DATABASE_URI']
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = app.config['SQLALCHEMY_TRACK_MODIFICATIONS']
 db.init_app(app)
 
 # Create database tables
@@ -48,12 +59,11 @@ def serve(path):
         else:
             return "index.html not found", 404
 
+from src.utils.validation import add_security_headers
+
 @app.after_request
 def after_request(response):
-    response.headers.add('Access-Control-Allow-Origin', '*')
-    response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
-    response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS')
-    return response
+    return add_security_headers(response)
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)

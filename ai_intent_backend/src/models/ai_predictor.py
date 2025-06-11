@@ -3,6 +3,7 @@ import random
 import math
 from datetime import datetime, timedelta
 from typing import Dict, List, Any, Optional
+from src.utils.cache import cached_prediction, performance_monitor
 
 class IntentPredictor:
     """
@@ -69,11 +70,17 @@ class IntentPredictor:
             }
         }
     
+    @cached_prediction(ttl=300)
+    @performance_monitor
     def predict_intent(self, session_data: Dict[str, Any], events: List[Dict[str, Any]]) -> Dict[str, Any]:
         """
         Predict user intent based on session data and behavioral events.
         """
         try:
+            # Validate input data
+            if not isinstance(session_data, dict) or not isinstance(events, list):
+                raise ValueError("Invalid input data format")
+            
             # Extract features from session and events
             features = self.extract_features(session_data, events)
             

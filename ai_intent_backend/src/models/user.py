@@ -1,5 +1,5 @@
 from flask_sqlalchemy import SQLAlchemy
-from datetime import datetime
+from datetime import datetime, timedelta
 import json
 
 db = SQLAlchemy()
@@ -56,6 +56,12 @@ class UserSession(db.Model):
 
 class UserEvent(db.Model):
     __tablename__ = 'user_events'
+    __table_args__ = (
+        # Composite indexes for better query performance
+        db.Index('idx_session_timestamp', 'session_id', 'timestamp'),
+        db.Index('idx_event_type_timestamp', 'event_type', 'timestamp'),
+        db.Index('idx_session_event_type', 'session_id', 'event_type'),
+    )
     
     id = db.Column(db.Integer, primary_key=True)
     event_id = db.Column(db.String(255), unique=True, nullable=False, index=True)
@@ -86,6 +92,23 @@ class UserEvent(db.Model):
             'x_coordinate': self.x_coordinate,
             'y_coordinate': self.y_coordinate
         }
+    
+    @classmethod
+    def get_session_events(cls, session_id, limit=None):
+        """Optimized query to get events for a session"""
+        query = cls.query.filter_by(session_id=session_id).order_by(cls.timestamp.desc())
+        if limit:
+            query = query.limit(limit)
+        return query.all()
+    
+    @classmethod
+    def get_recent_events(cls, session_id, minutes=60):
+        """Get recent events for a session within specified minutes"""
+        cutoff_time = datetime.utcnow() - timedelta(minutes=minutes)
+        return cls.query.filter(
+            cls.session_id == session_id,
+            cls.timestamp >= cutoff_time
+        ).order_by(cls.timestamp.desc()).all()
 
 class IntentPrediction(db.Model):
     __tablename__ = 'intent_predictions'

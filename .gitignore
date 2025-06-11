@@ -260,7 +260,6 @@ ai_intent_backend/static/
 *.joblib
 *.h5
 *.pb
-models/
 checkpoints/
 
 # Data files
