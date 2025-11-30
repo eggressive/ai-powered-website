@@ -155,9 +155,11 @@ fi
 
 # Check 8: Recent Process History
 print_check "Checking for suspicious processes..."
-if ps aux | grep -i "bun\|trufflehog" | grep -v grep | grep -v "check-shai-hulud" > /dev/null; then
+# Using [b]un and [t]rufflehog prevents grep from matching itself
+# The brackets make the pattern match "bun" but the process shows "[b]un"
+if ps aux | grep -E "[b]un|[t]rufflehog" > /dev/null; then
     print_warn "Suspicious processes detected:"
-    ps aux | grep -i "bun\|trufflehog" | grep -v grep | grep -v "check-shai-hulud"
+    ps aux | grep -E "[b]un|[t]rufflehog"
 else
     print_ok "No suspicious processes running"
 fi
