@@ -67,7 +67,7 @@ fi
 
 # Check 3: Shai-Hulud String Patterns
 print_check "Scanning for Shai-Hulud signature strings in source code..."
-SHAI_STRINGS=$(grep -r "Sha1-Hulud\|Shai-Hulud" . \
+SHAI_STRINGS=$(grep -r "Shai-Hulud\|Sha1-Hulud" . \
     --exclude-dir=node_modules \
     --exclude-dir=.git \
     --exclude-dir=.github \
@@ -121,7 +121,7 @@ if command -v gh &> /dev/null; then
     print_check "Checking GitHub for exfiltration repositories..."
     if gh auth status &> /dev/null; then
         MALICIOUS_REPOS=$(gh repo list --json name,description --limit 1000 2>/dev/null | \
-            jq -r '.[] | select(.description | contains("Sha1-Hulud") or contains("Shai-Hulud") or contains("Second Coming")) | .name' 2>/dev/null || true)
+            jq -r '.[] | select(.description | contains("Shai-Hulud") or contains("Sha1-Hulud") or contains("Second Coming")) | .name' 2>/dev/null || true)
         if [ -n "$MALICIOUS_REPOS" ]; then
             print_fail "CRITICAL: Malicious GitHub repositories detected!"
             echo "$MALICIOUS_REPOS" | while read -r repo; do

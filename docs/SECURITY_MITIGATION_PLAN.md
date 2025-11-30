@@ -53,13 +53,13 @@ Shai-Hulud 2.0 is an active npm supply chain attack that:
 ```bash
 # Check for suspicious files
 find . -name "setup_bun.js" -o -name "bun_environment.js"
-find . -type f -name "*.js" -exec grep -l "Sha1-Hulud\|Shai-Hulud" {} \;
+find . -type f -name "*.js" -exec grep -l "Shai-Hulud\|Sha1-Hulud" {} \;
 
 # Review all package.json files for install scripts
 find . -name "package.json" -exec grep -H "preinstall\|postinstall\|preuninstall" {} \;
 
 # Check for suspicious GitHub repos in your account
-gh repo list --json name,description | grep -i "sha1-hulud\|shai-hulud\|second coming"
+gh repo list --json name,description | grep -i "shai-hulud\|sha1-hulud\|second coming"
 ```
 
 ### 1.2 Rotate ALL Credentials
@@ -381,7 +381,7 @@ npx socket-npm audit --package-manager pnpm
    ls -laR ~/ > /tmp/file_listing.txt
 
    # Check for Shai-Hulud artifacts
-   find ~ -name "*sha1-hulud*" -o -name "*shai-hulud*" > /tmp/malware_files.txt
+   find ~ -name "*shai-hulud*" -o -name "*sha1-hulud*" > /tmp/malware_files.txt
    ```
 
 3. **Revoke All Credentials**
@@ -395,7 +395,7 @@ npx socket-npm audit --package-manager pnpm
    ```bash
    # Check for public repos created by malware
    gh repo list --json name,description,createdAt | \
-     jq '.[] | select(.description | contains("Sha1-Hulud") or contains("Second Coming"))'
+     jq '.[] | select(.description | contains("Shai-Hulud") or contains("Sha1-Hulud") or contains("Second Coming"))'
 
    # Check recently published npm packages
    npm profile get
