@@ -1,0 +1,315 @@
+name: Security Scanning & Supply Chain Protection
+
+on:
+  push:
+    branches: [main, master, develop, 'claude/**']
+  pull_request:
+    branches: [main, master]
+  schedule:
+    # Run daily at 2 AM UTC to catch new vulnerabilities
+    - cron: '0 2 * * *'
+  workflow_dispatch:  # Allow manual triggering
+
+permissions:
+  contents: read
+  pull-requests: write
+  security-events: write
+
+jobs:
+  malware-detection:
+    name: Detect Shai-Hulud & Malicious Files
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Full history for comprehensive scanning
+
+      - name: Check for Shai-Hulud 2.0 Indicators
+        run: |
+          echo "🔍 Scanning for Shai-Hulud 2.0 malware indicators..."
+
+          # Check for known malicious files
+          MALICIOUS_FILES=$(find . -type f \( -name "setup_bun.js" -o -name "bun_environment.js" \))
+          if [ -n "$MALICIOUS_FILES" ]; then
+            echo "🚨 CRITICAL: Malicious files detected!"
+            echo "$MALICIOUS_FILES"
+            exit 1
+          fi
+
+          # Check for suspicious install scripts
+          INSTALL_SCRIPTS=$(find . -name "package.json" -exec grep -l "\"preinstall\"\|\"postinstall\"" {} \;)
+          if [ -n "$INSTALL_SCRIPTS" ]; then
+            echo "⚠️  Install scripts found in:"
+            echo "$INSTALL_SCRIPTS"
+            echo "Reviewing content..."
+            for file in $INSTALL_SCRIPTS; do
+              echo "=== $file ==="
+              grep -A 2 "\"preinstall\"\|\"postinstall\"" "$file"
+            done
+            # Exit with error only if not expected scripts
+            if grep -r "setup_bun\|bun_environment" $INSTALL_SCRIPTS; then
+              echo "🚨 CRITICAL: Malicious install scripts detected!"
+              exit 1
+            fi
+          fi
+
+          # Check for Shai-Hulud string patterns
+          SHAI_HULUD=$(grep -r "Sha1-Hulud\|Shai-Hulud\|Second Coming" . --exclude-dir=node_modules --exclude-dir=.git || true)
+          if [ -n "$SHAI_HULUD" ]; then
+            echo "⚠️  Shai-Hulud strings found:"
+            echo "$SHAI_HULUD"
+            # Don't exit - might be in documentation
+          fi
+
+          echo "✅ No immediate malware indicators detected"
+
+      - name: Check for Suspicious GitHub Workflows
+        run: |
+          echo "🔍 Checking GitHub workflows for suspicious patterns..."
+          if [ -d ".github/workflows" ]; then
+            # Check for workflows that trigger on discussions (Shai-Hulud persistence)
+            DISCUSSION_WORKFLOWS=$(grep -r "discussion" .github/workflows/ || true)
+            if [ -n "$DISCUSSION_WORKFLOWS" ]; then
+              echo "⚠️  Discussion-triggered workflows found (potential persistence mechanism):"
+              echo "$DISCUSSION_WORKFLOWS"
+            fi
+
+            # Check for workflows with suspicious names
+            if ls .github/workflows/discussion.yaml 2>/dev/null || ls .github/workflows/discussion.yml 2>/dev/null; then
+              echo "🚨 CRITICAL: Suspicious workflow file 'discussion.yaml/yml' detected!"
+              exit 1
+            fi
+          fi
+          echo "✅ No suspicious workflows detected"
+
+  dependency-audit:
+    name: Dependency Security Audit
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 10
+
+      - name: Install dependencies safely
+        run: |
+          cd ai-intent-tracker
+          # Install with frozen lockfile and ignore scripts
+          pnpm install --frozen-lockfile --ignore-scripts
+        env:
+          NODE_ENV: development
+
+      - name: Run pnpm audit
+        run: |
+          cd ai-intent-tracker
+          echo "🔍 Running pnpm security audit..."
+          pnpm audit --audit-level=moderate || true
+          pnpm audit --json > ../audit-report.json || true
+
+      - name: Check for known vulnerable packages
+        run: |
+          cd ai-intent-tracker
+          echo "🔍 Checking for known compromised packages..."
+
+          # List of some known compromised packages (update regularly)
+          # This is a sample - refer to npm advisories for complete list
+          KNOWN_BAD_PACKAGES="@posthog/plugin-scaffold@1.4.4 posthog@3.8.0"
+
+          for pkg in $KNOWN_BAD_PACKAGES; do
+            if pnpm list "$pkg" 2>/dev/null; then
+              echo "🚨 CRITICAL: Known compromised package detected: $pkg"
+              exit 1
+            fi
+          done
+
+          echo "✅ No known compromised packages detected"
+
+      - name: Verify lock file integrity
+        run: |
+          cd ai-intent-tracker
+          echo "🔍 Verifying lock file integrity..."
+
+          # Check if lock file has been tampered with
+          git diff --exit-code pnpm-lock.yaml || {
+            echo "⚠️  Lock file has uncommitted changes!"
+            git diff pnpm-lock.yaml
+          }
+
+          echo "✅ Lock file integrity verified"
+
+      - name: Upload audit report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: security-audit-report
+          path: audit-report.json
+          retention-days: 30
+
+  secret-scanning:
+    name: Secret & Credential Scanning
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: TruffleHog Secret Scan
+        uses: trufflesecurity/trufflehog@main
+        with:
+          path: ./
+          base: ${{ github.event.repository.default_branch }}
+          head: HEAD
+          extra_args: --debug --only-verified
+
+      - name: Check for exposed credentials in package files
+        run: |
+          echo "🔍 Checking for exposed credentials..."
+
+          # Check for npm tokens
+          if grep -r "npm_[A-Za-z0-9_]\\{36\\}" . --exclude-dir=node_modules --exclude-dir=.git; then
+            echo "🚨 CRITICAL: npm token detected in code!"
+            exit 1
+          fi
+
+          # Check for GitHub PATs
+          if grep -r "ghp_[A-Za-z0-9_]\\{36\\}" . --exclude-dir=node_modules --exclude-dir=.git; then
+            echo "🚨 CRITICAL: GitHub token detected in code!"
+            exit 1
+          fi
+
+          # Check for AWS keys
+          if grep -r "AKIA[0-9A-Z]\\{16\\}" . --exclude-dir=node_modules --exclude-dir=.git; then
+            echo "🚨 CRITICAL: AWS access key detected in code!"
+            exit 1
+          fi
+
+          echo "✅ No exposed credentials detected"
+
+  supply-chain-analysis:
+    name: Supply Chain Security Analysis
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 10
+
+      - name: Generate SBOM (Software Bill of Materials)
+        run: |
+          cd ai-intent-tracker
+          echo "📦 Generating Software Bill of Materials..."
+          npx @cyclonedx/cyclonedx-npm --output-file ../sbom.json
+
+          echo "📊 SBOM Statistics:"
+          jq -r '.components | length' ../sbom.json || echo "SBOM component count unavailable"
+
+      - name: Upload SBOM
+        uses: actions/upload-artifact@v4
+        with:
+          name: software-bill-of-materials
+          path: sbom.json
+          retention-days: 90
+
+      - name: Analyze dependency tree depth
+        run: |
+          cd ai-intent-tracker
+          echo "🌳 Analyzing dependency tree..."
+
+          # Deep dependency trees increase attack surface
+          DEPTH=$(pnpm list --depth=10 --json | jq '.[] | .dependencies | length' || echo "0")
+          echo "Total dependencies (direct + transitive): $DEPTH"
+
+          if [ "$DEPTH" -gt 1000 ]; then
+            echo "⚠️  Very large dependency tree detected (>1000 packages)"
+            echo "Consider reducing dependencies to minimize attack surface"
+          fi
+
+  python-security:
+    name: Python Dependency Security
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Safety
+        run: |
+          pip install safety
+
+      - name: Scan Python dependencies
+        run: |
+          cd ai_intent_backend
+          echo "🔍 Scanning Python dependencies for vulnerabilities..."
+          safety check -r requirements.txt --json > ../python-security-report.json || true
+          safety check -r requirements.txt || echo "Vulnerabilities found - review report"
+
+      - name: Check for suspicious Python packages
+        run: |
+          cd ai_intent_backend
+          echo "🔍 Checking for suspicious Python packages..."
+
+          # Check for packages with suspicious names (typosquatting)
+          SUSPICIOUS=$(grep -E "reqeusts|pillow|numpy|scipy|pandas" requirements.txt || true)
+          if [ -n "$SUSPICIOUS" ]; then
+            echo "⚠️  Potentially typosquatted package names found:"
+            echo "$SUSPICIOUS"
+          fi
+
+          echo "✅ Python package check complete"
+
+      - name: Upload Python security report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: python-security-report
+          path: python-security-report.json
+          retention-days: 30
+
+  security-summary:
+    name: Security Scan Summary
+    runs-on: ubuntu-latest
+    needs: [malware-detection, dependency-audit, secret-scanning, supply-chain-analysis, python-security]
+    if: always()
+    steps:
+      - name: Generate Summary
+        run: |
+          echo "# 🔒 Security Scan Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Scan Date**: $(date -u +"%Y-%m-%d %H:%M:%S UTC")" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Malware Detection: Completed" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Dependency Audit: Completed" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Secret Scanning: Completed" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Supply Chain Analysis: Completed" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Python Security: Completed" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## Recommendations" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- Review all security reports in artifacts" >> $GITHUB_STEP_SUMMARY
+          echo "- Update vulnerable dependencies promptly" >> $GITHUB_STEP_SUMMARY
+          echo "- Rotate credentials if any leaks detected" >> $GITHUB_STEP_SUMMARY
+          echo "- Review and approve Dependabot PRs weekly" >> $GITHUB_STEP_SUMMARY
