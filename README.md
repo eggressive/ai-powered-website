@@ -201,6 +201,7 @@ Potential improvements include:
 - [Security Quick Start](docs/SECURITY_QUICK_START.md) - Immediate security actions
 - [Security Mitigation Plan](docs/SECURITY_MITIGATION_PLAN.md) - Comprehensive security guide
 - [Shai-Hulud Assessment](docs/SHAI_HULUD_ASSESSMENT_SUMMARY.md) - Supply chain security assessment
+- [Security Workflow Maintenance](docs/SECURITY_WORKFLOW_MAINTENANCE.md) - How to maintain automated security checks
 
 ## 🏆 Project Success
 
