@@ -55,7 +55,7 @@ jobs:
           fi
 
           # Check for Shai-Hulud string patterns in source code only
-          SHAI_STRINGS=$(grep -r "Sha1-Hulud\|Shai-Hulud" . \
+          SHAI_STRINGS=$(grep -r "Shai-Hulud\|Sha1-Hulud" . \
             --exclude-dir=node_modules \
             --exclude-dir=.git \
             --exclude-dir=.github \

@@ -15,7 +15,7 @@ find . -name "setup_bun.js" -o -name "bun_environment.js"
 grep -r "preinstall\|postinstall" */package.json
 
 # Check for Shai-Hulud repos in your GitHub account
-gh repo list --json name,description | grep -i "sha1-hulud\|shai-hulud"
+gh repo list --json name,description | grep -i "shai-hulud\|sha1-hulud"
 ```
 
 **Expected Result**: All commands should return empty or safe results
@@ -132,7 +132,7 @@ fi
 
 # 2. Check for exfiltration repos
 echo -n "Malicious GitHub repos: "
-if gh repo list --json name,description | grep -qi "sha1-hulud\|shai-hulud\|second coming"; then
+if gh repo list --json name,description | grep -qi "shai-hulud\|sha1-hulud\|second coming"; then
   echo "❌ FOUND - COMPROMISED!"
 else
   echo "✅ None found"
