@@ -190,7 +190,7 @@ jobs:
           fi
 
       - name: Upload audit report
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         if: always()
         with:
           name: security-audit-report
@@ -267,7 +267,7 @@ jobs:
           fi
 
       - name: Upload SBOM
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         if: always()
         with:
           name: software-bill-of-materials
@@ -378,7 +378,7 @@ jobs:
           echo "✅ No typosquatted packages detected"
 
       - name: Upload Python security report
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         if: always()
         with:
           name: python-security-report
