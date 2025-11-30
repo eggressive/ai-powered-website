@@ -87,11 +87,26 @@ ai-powered-website/
 │   │   ├── hooks/            # Custom React hooks
 │   │   └── lib/              # Utility functions
 │   ├── package.json          # Node.js dependencies
+│   ├── pnpm-lock.yaml        # pnpm lock file
+│   ├── .npmrc               # Package manager security config
 │   └── vite.config.js        # Vite configuration
+├── .github/                   # GitHub configuration
+│   ├── workflows/            # CI/CD workflows
+│   ├── dependabot.yml        # Automated dependency updates
+│   └── SECURITY.md           # Security policy symlink
+├── scripts/                   # Utility scripts
+│   └── check-shai-hulud.sh   # Security compromise detection
 └── docs/                      # Project documentation
     ├── AI-Powered Website - Project Documentation.md
     ├── AI-Powered Website Architecture Design.md
-    └── User Behavior Tracking Research.md
+    ├── User Behavior Tracking Research.md
+    ├── SECURITY.md
+    ├── SECURITY_QUICK_START.md
+    ├── SECURITY_MITIGATION_PLAN.md
+    ├── SHAI_HULUD_ASSESSMENT_SUMMARY.md
+    ├── SECURITY_WORKFLOW_MAINTENANCE.md
+    ├── VALIDATION_REPORT_AND_FEATURE_PLAN.md
+    └── TESTING_ISSUE.md
 ```
 
 ## 🚀 Getting Started
@@ -100,7 +115,7 @@ ai-powered-website/
 
 - Python 3.8+
 - Node.js 16+
-- npm or pnpm
+- pnpm (recommended) or npm
 
 ### Backend Setup
 
@@ -114,13 +129,21 @@ python src/main.py
 
 ```bash
 cd ai-intent-tracker
-npm install  # or pnpm install
-npm run dev  # or pnpm dev
+pnpm install
+pnpm dev
 ```
 
 ### Environment Variables
 
 Create appropriate environment files for your setup. The application uses SQLite by default for development.
+
+### Security Check
+
+Run the security compromise detection script to ensure your environment is clean:
+
+```bash
+./scripts/check-shai-hulud.sh
+```
 
 ## 📊 How the AI Works
 
@@ -162,6 +185,8 @@ The system combines these factors using weighted algorithms to predict user inte
 - **Right to Deletion**: Users can delete their data at any time
 - **Transparent Processing**: Clear information about data usage
 - **Secure Storage**: All data is securely stored and processed
+- **Supply Chain Protection**: Automated scanning for malware and vulnerabilities
+- **Install Script Blocking**: Prevents malicious preinstall/postinstall scripts
 
 ## 📈 Performance Metrics
 
@@ -192,16 +217,20 @@ Potential improvements include:
 ## 📚 Documentation
 
 ### Project Documentation
+
 - [Project Documentation](docs/AI-Powered%20Website%20-%20Project%20Documentation.md)
 - [Architecture Design](docs/AI-Powered%20Website%20Architecture%20Design.md)
 - [User Behavior Research](docs/User%20Behavior%20Tracking%20Research.md)
 
 ### Security Documentation
+
 - [Security Policy](docs/SECURITY.md) - Vulnerability disclosure and reporting
 - [Security Quick Start](docs/SECURITY_QUICK_START.md) - Immediate security actions
 - [Security Mitigation Plan](docs/SECURITY_MITIGATION_PLAN.md) - Comprehensive security guide
 - [Shai-Hulud Assessment](docs/SHAI_HULUD_ASSESSMENT_SUMMARY.md) - Supply chain security assessment
 - [Security Workflow Maintenance](docs/SECURITY_WORKFLOW_MAINTENANCE.md) - How to maintain automated security checks
+- [Validation Report and Feature Plan](docs/VALIDATION_REPORT_AND_FEATURE_PLAN.md) - Frontend validation and features
+- [Testing Issue](docs/TESTING_ISSUE.md) - Testing documentation
 
 ## 🏆 Project Success
 
@@ -213,6 +242,9 @@ This AI-powered website successfully demonstrates:
 - ✅ Full GDPR compliance
 - ✅ Beautiful, responsive design
 - ✅ Production-ready deployment
+- ✅ Comprehensive security protections
+- ✅ Automated vulnerability scanning
+- ✅ Supply chain attack mitigation
 
 ## 📄 License
 
