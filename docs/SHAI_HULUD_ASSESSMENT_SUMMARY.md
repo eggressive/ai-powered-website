@@ -55,7 +55,7 @@
 | Security documentation | ✅ Created | `SECURITY.md` |
 | Mitigation guide | ✅ Created | `SECURITY_MITIGATION_PLAN.md` |
 | Quick start guide | ✅ Created | `SECURITY_QUICK_START.md` |
-| Compromise detector | ✅ Executable | `check-shai-hulud.sh` |
+| Compromise detector | ✅ Executable | `scripts/check-shai-hulud.sh` |
 
 ### 🤖 Automated Protection (CI/CD)
 
@@ -92,15 +92,15 @@ ai-intent-tracker/.npmrc                     # Install script protection
 
 ### Documentation Files
 ```
-SECURITY.md                                  # Security policy (2KB)
-SECURITY_MITIGATION_PLAN.md                  # Comprehensive guide (60KB)
-SECURITY_QUICK_START.md                      # Quick reference (20KB)
-SHAI_HULUD_ASSESSMENT_SUMMARY.md            # This file
+docs/SECURITY.md                             # Security policy (2KB)
+docs/SECURITY_MITIGATION_PLAN.md             # Comprehensive guide (60KB)
+docs/SECURITY_QUICK_START.md                 # Quick reference (20KB)
+docs/SHAI_HULUD_ASSESSMENT_SUMMARY.md       # This file
 ```
 
 ### Tools
 ```
-check-shai-hulud.sh                          # Compromise detection script (executable)
+scripts/check-shai-hulud.sh                  # Compromise detection script (executable)
 ```
 
 **Total**: 7 new files, 1,765 lines of security implementation
@@ -113,7 +113,7 @@ check-shai-hulud.sh                          # Compromise detection script (exec
 
 ```bash
 # 1. Verify repository is clean
-./check-shai-hulud.sh
+./scripts/check-shai-hulud.sh
 
 # 2. Verify protection is enabled
 cat ai-intent-tracker/.npmrc | grep "ignore-scripts"
@@ -155,7 +155,7 @@ cat .github/dependabot.yml
 - [x] Security scanning workflow deployed
 - [ ] **Team: Review this security PR and merge**
 - [ ] **DevOps: Configure GitHub Actions secrets**
-- [ ] **All: Run compromise check**: `./check-shai-hulud.sh`
+- [ ] **All: Run compromise check**: `./scripts/check-shai-hulud.sh`
 
 ### High Priority (Do This Week)
 
@@ -246,7 +246,7 @@ pnpm install  # ✅ Scripts blocked by .npmrc
 
 | Requirement | Status | Evidence |
 |-------------|--------|----------|
-| Security policy documented | ✅ Complete | `SECURITY.md` |
+| Security policy documented | ✅ Complete | `docs/SECURITY.md` |
 | Incident response plan | ✅ Complete | `SECURITY_MITIGATION_PLAN.md` Phase 5 |
 | Vulnerability disclosure | ✅ Complete | `SECURITY.md` |
 | Supply chain security | ✅ Complete | `.npmrc`, SBOM generation |
@@ -260,7 +260,7 @@ pnpm install  # ✅ Scripts blocked by .npmrc
 ### Compromise Detection Script
 
 ```bash
-$ ./check-shai-hulud.sh
+$ ./scripts/check-shai-hulud.sh
 
 ╔════════════════════════════════════════════════════════════════╗
 ║     Shai-Hulud 2.0 Compromise Detection Script                ║

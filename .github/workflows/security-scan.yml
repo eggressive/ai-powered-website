@@ -339,7 +339,7 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           echo '```bash' >> $GITHUB_STEP_SUMMARY
           echo "# Run local compromise check" >> $GITHUB_STEP_SUMMARY
-          echo "./check-shai-hulud.sh" >> $GITHUB_STEP_SUMMARY
+          echo "./scripts/check-shai-hulud.sh" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "# Update dependencies" >> $GITHUB_STEP_SUMMARY
           echo "cd ai-intent-tracker && pnpm audit fix" >> $GITHUB_STEP_SUMMARY

@@ -225,7 +225,7 @@ pnpm install --frozen-lockfile --ignore-scripts
 clamscan -r ~/ > ~/malware-scan.log
 ```
 
-Full details: See **Phase 5: Incident Response Plan** in `SECURITY_MITIGATION_PLAN.md`
+Full details: See **Phase 5: Incident Response Plan** in [SECURITY_MITIGATION_PLAN.md](./SECURITY_MITIGATION_PLAN.md)
 
 ---
 
@@ -284,7 +284,7 @@ Before considering your repository secure:
 
 ## 💬 Questions?
 
-- **Security Issues**: See `SECURITY.md` for reporting
+- **Security Issues**: See [SECURITY.md](./SECURITY.md) for reporting
 - **Implementation Help**: Open an issue with `[security]` tag
 - **Urgent Security Matters**: security@yourcompany.com
 
