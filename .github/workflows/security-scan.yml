@@ -256,14 +256,26 @@ jobs:
         continue-on-error: true  # Don't fail if SBOM generation fails
         run: |
           cd ai-intent-tracker
-          echo "📦 Generating Software Bill of Materials..."
-          npx @cyclonedx/cyclonedx-npm@latest --output-file ../sbom.json || {
-            echo "⚠️  SBOM generation failed - continuing anyway"
-            echo "{}" > ../sbom.json
-          }
+          echo "📦 Generating Software Bill of Materials with cdxgen..."
+
+          # Use cdxgen which properly supports pnpm, npm, yarn, and other package managers
+          # cdxgen analyzes pnpm-lock.yaml and package.json without needing npm ls
+          npx @cyclonedx/cdxgen@latest \
+            --type js \
+            --output ../sbom.json \
+            --print-table \
+            . || {
+              echo "⚠️  SBOM generation failed - continuing anyway"
+              echo '{"bomFormat": "CycloneDX", "specVersion": "1.4", "version": 1, "components": []}' > ../sbom.json
+            }
 
           if [ -f ../sbom.json ]; then
             echo "✅ SBOM generated successfully"
+            # Show summary
+            if command -v jq &> /dev/null; then
+              COMPONENT_COUNT=$(jq '.components | length' ../sbom.json 2>/dev/null || echo "unknown")
+              echo "   Components: $COMPONENT_COUNT"
+            fi
           fi
 
       - name: Upload SBOM
