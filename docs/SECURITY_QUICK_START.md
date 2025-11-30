@@ -286,7 +286,7 @@ Before considering your repository secure:
 
 - **Security Issues**: See [SECURITY.md](./SECURITY.md) for reporting
 - **Implementation Help**: Open an issue with `[security]` tag
-- **Urgent Security Matters**: security@yourcompany.com
+- **Urgent Security Matters**: <mitrovdim@gmail.com>
 
 ---
 
