@@ -1,7 +1,7 @@
 # Multi-stage Docker build for production
 
 # Stage 1: Build frontend
-FROM node:18-alpine AS frontend-builder
+FROM node:25-alpine AS frontend-builder
 
 WORKDIR /app/frontend
 COPY ai-intent-tracker/package*.json ./
