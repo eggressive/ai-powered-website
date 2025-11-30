@@ -54,6 +54,8 @@ export function useSession(initialConsent = {}, { autoInit = true } = {}) {
   // Use ref for startTime to avoid re-renders affecting time calculations
   const startTimeRef = useRef(null)
   const intervalRef = useRef(null)
+  // Track if session has been initialized to prevent re-initialization on consent changes
+  const hasInitializedRef = useRef(false)
   
   /**
    * Initialize a new session with the backend
@@ -237,15 +239,19 @@ export function useSession(initialConsent = {}, { autoInit = true } = {}) {
   }, [session])
   
   // Auto-initialize session on mount if autoInit is true
+  // Only runs once on mount - we intentionally exclude initializeSession from deps
+  // to prevent re-initialization when consent changes
   useEffect(() => {
-    if (autoInit) {
+    if (autoInit && !hasInitializedRef.current) {
+      hasInitializedRef.current = true
       // We catch the error here because initializeSession already handles errors
       // and sets the error state, but we need to prevent unhandled promise rejection
       initializeSession().catch(() => {
         // Error already handled in initializeSession
       })
     }
-  }, [autoInit, initializeSession])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [autoInit])
   
   // Set up time tracking interval
   useEffect(() => {
