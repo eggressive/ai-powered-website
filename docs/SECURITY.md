@@ -20,7 +20,7 @@ We take security vulnerabilities seriously. If you discover a security issue, pl
 Instead, please report security issues via one of the following methods:
 
 1. **Preferred**: Use GitHub's [Security Advisory](../../security/advisories/new) feature
-2. **Email**: Send details to `security@yourcompany.com`
+2. **Email**: Send details to `mitrovdim@gmail.com`
 3. **Private disclosure**: Contact the maintainers directly
 
 ### What to Include
@@ -179,7 +179,8 @@ This project aims to comply with:
 ## Contact
 
 For security-related questions or concerns:
-- Security Team: `security@yourcompany.com`
+
+- Security Team: `mitrovdim@gmail.com`
 - Project Maintainers: See [CODEOWNERS](./CODEOWNERS)
 
 ---
