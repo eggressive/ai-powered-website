@@ -2,11 +2,11 @@
 
 A comprehensive AI-powered website that tracks user behavior and uses machine learning to predict user intent in real-time. This project demonstrates advanced user analytics, AI predictions, and full GDPR compliance.
 
-## 🎯 Project Overview
+## Project Overview
 
 This project combines modern web technologies with artificial intelligence to create an intelligent user tracking and intent prediction system. The application analyzes user behavior patterns and predicts what brings users to the site with confidence scoring.
 
-## ✨ Key Features
+## Key Features
 
 ### 🔍 Real-Time User Tracking
 
@@ -43,7 +43,7 @@ This project combines modern web technologies with artificial intelligence to cr
 - **Real-Time Updates**: Live data updates every 5 seconds
 - **Intuitive Navigation**: Tabbed interface for easy access to features
 
-## 🏗️ Technical Architecture
+## Technical Architecture
 
 ### Frontend (`/ai-intent-tracker/`)
 
@@ -145,7 +145,7 @@ Run the security compromise detection script to ensure your environment is clean
 ./scripts/check-shai-hulud.sh
 ```
 
-## 📊 How the AI Works
+## How the AI Works
 
 The AI intent prediction engine analyzes multiple factors:
 
@@ -157,7 +157,7 @@ The AI intent prediction engine analyzes multiple factors:
 
 The system combines these factors using weighted algorithms to predict user intent with confidence scores.
 
-## 🔧 API Endpoints
+## API Endpoints
 
 ### Data Collection
 
