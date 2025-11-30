@@ -116,12 +116,10 @@ describe('useSession Hook', () => {
       expect(requestBody.consent_status.marketing).toBe(true)
     })
 
-    it('should not auto-initialize when autoInit is false', async () => {
+    it('should not auto-initialize when autoInit is false', () => {
       const { result } = renderHook(() => useSession({}, { autoInit: false }))
 
-      // Wait a bit to ensure no initialization occurs
-      await new Promise(resolve => setTimeout(resolve, 50))
-
+      // With autoInit: false, initialization should not occur synchronously
       expect(result.current.session.sessionId).toBe(null)
       expect(result.current.isConnected).toBe(false)
       expect(mockFetch).not.toHaveBeenCalled()

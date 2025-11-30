@@ -1,9 +1,26 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 
-// Backend API configuration
-const API_BASE_URL = typeof window !== 'undefined' 
-  ? window.location.origin + '/api' 
-  : '/api'
+/**
+ * Generate a unique session ID
+ * Uses crypto.randomUUID() when available for better randomness
+ * Falls back to Math.random() for older browsers
+ */
+const generateSessionId = () => {
+  if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+    return `sess_${crypto.randomUUID().replace(/-/g, '').slice(0, 9)}`
+  }
+  return `sess_${Math.random().toString(36).substr(2, 9)}`
+}
+
+/**
+ * Get the API base URL from window location or default
+ */
+const getApiBaseUrl = () => {
+  if (typeof window !== 'undefined') {
+    return window.location.origin + '/api'
+  }
+  return '/api'
+}
 
 /**
  * Custom hook for session management with tracking capabilities
@@ -46,9 +63,10 @@ export function useSession(initialConsent = {}, { autoInit = true } = {}) {
     setError(null)
     
     try {
-      const sessionId = `sess_${Math.random().toString(36).substr(2, 9)}`
+      const sessionId = generateSessionId()
+      const apiBaseUrl = getApiBaseUrl()
       
-      const response = await fetch(`${API_BASE_URL}/session/start`, {
+      const response = await fetch(`${apiBaseUrl}/session/start`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -141,7 +159,8 @@ export function useSession(initialConsent = {}, { autoInit = true } = {}) {
     // Update consent with backend if session exists
     if (session.sessionId) {
       try {
-        await fetch(`${API_BASE_URL}/privacy/consent`, {
+        const apiBaseUrl = getApiBaseUrl()
+        await fetch(`${apiBaseUrl}/privacy/consent`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -166,7 +185,8 @@ export function useSession(initialConsent = {}, { autoInit = true } = {}) {
     if (!session.sessionId) return
     
     try {
-      const response = await fetch(`${API_BASE_URL}/session/update`, {
+      const apiBaseUrl = getApiBaseUrl()
+      const response = await fetch(`${apiBaseUrl}/session/update`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -195,7 +215,8 @@ export function useSession(initialConsent = {}, { autoInit = true } = {}) {
     if (!session.sessionId) return
     
     try {
-      await fetch(`${API_BASE_URL}/session/end`, {
+      const apiBaseUrl = getApiBaseUrl()
+      await fetch(`${apiBaseUrl}/session/end`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
