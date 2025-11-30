@@ -191,11 +191,16 @@ Potential improvements include:
 
 ## 📚 Documentation
 
-For detailed information, see the documentation files:
-
+### Project Documentation
 - [Project Documentation](docs/AI-Powered%20Website%20-%20Project%20Documentation.md)
 - [Architecture Design](docs/AI-Powered%20Website%20Architecture%20Design.md)
 - [User Behavior Research](docs/User%20Behavior%20Tracking%20Research.md)
+
+### Security Documentation
+- [Security Policy](docs/SECURITY.md) - Vulnerability disclosure and reporting
+- [Security Quick Start](docs/SECURITY_QUICK_START.md) - Immediate security actions
+- [Security Mitigation Plan](docs/SECURITY_MITIGATION_PLAN.md) - Comprehensive security guide
+- [Shai-Hulud Assessment](docs/SHAI_HULUD_ASSESSMENT_SUMMARY.md) - Supply chain security assessment
 
 ## 🏆 Project Success
 
