@@ -289,16 +289,66 @@ jobs:
       - name: Check for suspicious Python packages
         run: |
           cd ai_intent_backend
-          echo "🔍 Checking for suspicious Python packages..."
+          echo "🔍 Checking for typosquatted Python packages..."
 
-          # Check for packages with suspicious names (typosquatting)
-          SUSPICIOUS=$(grep -E "reqeusts|pillow|numpy|scipy|pandas" requirements.txt 2>/dev/null || true)
-          if [ -n "$SUSPICIOUS" ]; then
-            echo "⚠️  Package names found (verify they are correct):"
-            echo "$SUSPICIOUS"
+          # Check for common typosquatting patterns
+          # These are MISSPELLINGS of legitimate packages that attackers use
+          TYPOS_FOUND=false
+
+          # Check for "requests" typos (correct: requests)
+          if grep -qE "^(reqeusts|requestes|reques|request)==" requirements.txt 2>/dev/null; then
+            echo "🚨 Possible typo of 'requests' package found"
+            grep -E "^(reqeusts|requestes|reques|request)==" requirements.txt
+            TYPOS_FOUND=true
           fi
 
-          echo "✅ Python package check complete"
+          # Check for "urllib3" typos (correct: urllib3)
+          if grep -qE "^(urlib3|urlib|urllib)==" requirements.txt 2>/dev/null; then
+            echo "🚨 Possible typo of 'urllib3' package found"
+            grep -E "^(urlib3|urlib|urllib)==" requirements.txt
+            TYPOS_FOUND=true
+          fi
+
+          # Check for "setuptools" typos (correct: setuptools)
+          if grep -qE "^(setuptool|setup-tools)==" requirements.txt 2>/dev/null; then
+            echo "🚨 Possible typo of 'setuptools' package found"
+            grep -E "^(setuptool|setup-tools)==" requirements.txt
+            TYPOS_FOUND=true
+          fi
+
+          # Check for "numpy" typos (correct: numpy)
+          if grep -qE "^(numbpy|nunpy|numpi|numpby)==" requirements.txt 2>/dev/null; then
+            echo "🚨 Possible typo of 'numpy' package found"
+            grep -E "^(numbpy|nunpy|numpi|numpby)==" requirements.txt
+            TYPOS_FOUND=true
+          fi
+
+          # Check for "beautifulsoup4" typos (correct: beautifulsoup4)
+          if grep -qE "^(beautifulsoup|beautiful-soup)==" requirements.txt 2>/dev/null; then
+            echo "🚨 Possible typo of 'beautifulsoup4' package found"
+            grep -E "^(beautifulsoup|beautiful-soup)==" requirements.txt
+            TYPOS_FOUND=true
+          fi
+
+          # Check for single-char package names (usually malicious)
+          if grep -qE "^[a-zA-Z]==" requirements.txt 2>/dev/null; then
+            echo "🚨 Suspicious single-character package found"
+            grep -E "^[a-zA-Z]==" requirements.txt
+            TYPOS_FOUND=true
+          fi
+
+          if [ "$TYPOS_FOUND" = true ]; then
+            echo ""
+            echo "Common legitimate packages for reference:"
+            echo "  ✅ requests      (not: reqeusts, requestes, request)"
+            echo "  ✅ urllib3       (not: urlib3, urlib, urllib)"
+            echo "  ✅ setuptools    (not: setuptool, setup-tools)"
+            echo "  ✅ numpy         (not: numbpy, nunpy, numpi)"
+            echo "  ✅ beautifulsoup4 (not: beautifulsoup)"
+            exit 1
+          fi
+
+          echo "✅ No typosquatted packages detected"
 
       - name: Upload Python security report
         uses: actions/upload-artifact@v4
