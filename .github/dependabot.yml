@@ -8,8 +8,13 @@ updates:
       day: "monday"
       time: "09:00"
     open-pull-requests-limit: 10
-    reviewers:
-      - "your-team-name"
+    # Uncomment and configure reviewers if needed:
+    # reviewers:
+    #   - "username1"
+    #   - "username2"
+    # Or use teams (requires organization):
+    # reviewers:
+    #   - "org/team-name"
     labels:
       - "dependencies"
       - "security"
@@ -43,8 +48,9 @@ updates:
       day: "monday"
       time: "09:00"
     open-pull-requests-limit: 10
-    reviewers:
-      - "your-team-name"
+    # Uncomment and configure reviewers if needed:
+    # reviewers:
+    #   - "username1"
     labels:
       - "dependencies"
       - "security"
@@ -61,8 +67,9 @@ updates:
       day: "monday"
       time: "09:00"
     open-pull-requests-limit: 5
-    reviewers:
-      - "your-team-name"
+    # Uncomment and configure reviewers if needed:
+    # reviewers:
+    #   - "username1"
     labels:
       - "dependencies"
       - "docker"
