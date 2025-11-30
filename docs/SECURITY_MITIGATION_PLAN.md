@@ -15,6 +15,7 @@ This document outlines the comprehensive security measures to protect this repos
 ### What is Shai-Hulud 2.0?
 
 Shai-Hulud 2.0 is an active npm supply chain attack that:
+
 - Compromised 25,000+ repositories and ~800 npm packages
 - Uses `preinstall` scripts to execute before package installation
 - Harvests credentials (GitHub tokens, npm tokens, AWS keys, SSH keys)
@@ -22,6 +23,7 @@ Shai-Hulud 2.0 is an active npm supply chain attack that:
 - Can destroy entire home directories if exfiltration fails
 
 ### Attack Timeline
+
 - **November 21-23, 2025**: Initial wave of trojanized packages published
 - **November 24, 2025**: Major packages from Zapier, PostHog, Postman compromised
 - **November 26, 2025**: Attack continues with expanded scope
@@ -30,14 +32,16 @@ Shai-Hulud 2.0 is an active npm supply chain attack that:
 
 ## Current Repository Assessment
 
-### ✅ Clean Indicators
+### Clean Indicators
+
 - No malicious `setup_bun.js` or `bun_environment.js` files
 - No `preinstall`/`postinstall` scripts in package.json
 - No suspicious GitHub workflows
 - Using pnpm (more secure than npm)
 - Lock file present (pnpm-lock.yaml)
 
-### ⚠️ Risk Factors
+### Risk Factors
+
 - 62 production dependencies (large attack surface)
 - No automated security scanning in place
 - No dependency version pinning policy
@@ -188,7 +192,7 @@ Email: security@yourcompany.com
 
 ---
 
-## Phase 3: CI/CD Hardening (Do Within 2 Weeks)
+## Phase 3: CI/CD Hardening
 
 ### 3.1 Create GitHub Actions Security Workflow
 
@@ -316,7 +320,7 @@ jobs:
 
 ---
 
-## Phase 4: Ongoing Monitoring (Continuous)
+## Phase 4: Ongoing Monitoring
 
 ### 4.1 Daily Monitoring Checklist
 
@@ -363,6 +367,7 @@ npx socket-npm audit --package-manager pnpm
 #### Immediate Actions (First 15 Minutes)
 
 1. **Isolate the System**
+
    ```bash
    # Disconnect from network
    sudo ip link set <interface> down
@@ -374,6 +379,7 @@ npx socket-npm audit --package-manager pnpm
    ```
 
 2. **Preserve Evidence**
+
    ```bash
    # Capture current state
    ps aux > /tmp/process_list.txt
@@ -392,6 +398,7 @@ npx socket-npm audit --package-manager pnpm
 #### Investigation (First Hour)
 
 4. **Check for Exfiltration**
+
    ```bash
    # Check for public repos created by malware
    gh repo list --json name,description,createdAt | \
@@ -403,6 +410,7 @@ npx socket-npm audit --package-manager pnpm
    ```
 
 5. **Review System Modifications**
+
    ```bash
    # Check for malicious cron jobs
    crontab -l
@@ -415,6 +423,7 @@ npx socket-npm audit --package-manager pnpm
    ```
 
 6. **Analyze Package Installations**
+
    ```bash
    # Review npm install history
    npm config get cache
@@ -428,6 +437,7 @@ npx socket-npm audit --package-manager pnpm
 #### Remediation (First 24 Hours)
 
 7. **Clean the System**
+
    ```bash
    # Remove Bun if installed by malware
    rm -rf ~/.bun
@@ -440,6 +450,7 @@ npx socket-npm audit --package-manager pnpm
    ```
 
 8. **Restore from Clean State**
+
    ```bash
    # Remove all node_modules
    find . -name "node_modules" -type d -prune -exec rm -rf {} +
@@ -459,6 +470,7 @@ npx socket-npm audit --package-manager pnpm
 #### Post-Incident (First Week)
 
 10. **Audit All Code Changes**
+
     ```bash
     # Check for malicious commits
     git log --all --source --full-history
@@ -586,6 +598,7 @@ git log --show-signature
 ### Reporting Requirements
 
 If compromise is detected:
+
 1. **Internal**: Notify security team within 1 hour
 2. **GitHub**: Report via security@github.com
 3. **npm**: Report via security@npmjs.com
@@ -604,14 +617,4 @@ If compromise is detected:
 
 ---
 
-## Approval and Sign-Off
-
-| Role | Name | Signature | Date |
-|------|------|-----------|------|
-| Security Lead | | | |
-| Engineering Manager | | | |
-| DevOps Lead | | | |
-
-**Last Review Date**: 2025-11-30
-**Next Review Date**: 2025-12-30
 **Version**: 1.0

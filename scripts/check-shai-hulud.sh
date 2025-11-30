@@ -5,7 +5,7 @@
 set -e
 
 echo "╔════════════════════════════════════════════════════════════════╗"
-echo "║     Shai-Hulud 2.0 Compromise Detection Script                ║"
+echo "║     Shai-Hulud 2.0 Compromise Detection Script                 ║"
 echo "║     Last Updated: 2025-11-30                                   ║"
 echo "╚════════════════════════════════════════════════════════════════╝"
 echo ""
@@ -60,7 +60,7 @@ if [ -n "$INSTALL_SCRIPTS" ]; then
         grep -A 2 "\"preinstall\"\|\"postinstall\"" "$file"
     done
     echo ""
-    echo "  ℹ️  Review these scripts to ensure they are legitimate"
+    echo "  Review these scripts to ensure they are legitimate"
 else
     print_ok "No install scripts found"
 fi
@@ -109,9 +109,9 @@ print_check "Checking for suspicious Bun runtime installation..."
 if [ -d "$HOME/.bun" ] && [ ! -f "$HOME/.bun/LEGITIMATE_INSTALL" ]; then
     BUN_VERSION=$(bun --version 2>/dev/null || echo "unknown")
     print_warn "Bun runtime found in home directory (version: $BUN_VERSION)"
-    echo "  ℹ️  If you didn't install Bun intentionally, this is suspicious"
-    echo "  ℹ️  Malware installs Bun to ~/.bun to execute malicious scripts"
-    echo "  ℹ️  If legitimate, create: touch ~/.bun/LEGITIMATE_INSTALL"
+    echo "  If you didn't install Bun intentionally, this is suspicious"
+    echo "  Malware installs Bun to ~/.bun to execute malicious scripts"
+    echo "  If legitimate, create: touch ~/.bun/LEGITIMATE_INSTALL"
 else
     print_ok "No suspicious Bun installation in home directory"
 fi
@@ -132,11 +132,11 @@ if command -v gh &> /dev/null; then
         fi
     else
         print_warn "GitHub CLI not authenticated (skipping repo check)"
-        echo "  ℹ️  Run 'gh auth login' to enable this check"
+        echo "  Run 'gh auth login' to enable this check"
     fi
 else
     print_warn "GitHub CLI not installed (skipping repo check)"
-    echo "  ℹ️  Install with: brew install gh (macOS) or apt install gh (Ubuntu)"
+    echo "  Install with: brew install gh (macOS) or apt install gh (Ubuntu)"
 fi
 
 # Check 7: npm Packages (requires npm)
@@ -145,7 +145,7 @@ if command -v npm &> /dev/null; then
     NPM_USER=$(npm whoami 2>/dev/null || echo "")
     if [ -n "$NPM_USER" ]; then
         print_ok "Logged in as npm user: $NPM_USER"
-        echo "  ℹ️  Manually verify recent publications at: https://www.npmjs.com/~$NPM_USER"
+        echo "  Manually verify recent publications at: https://www.npmjs.com/~$NPM_USER"
     else
         print_ok "Not logged into npm registry"
     fi
@@ -171,11 +171,11 @@ if [ -f "ai-intent-tracker/.npmrc" ]; then
         print_ok "Install script protection enabled (.npmrc)"
     else
         print_warn ".npmrc exists but ignore-scripts not set"
-        echo "  ℹ️  Add 'ignore-scripts=true' to .npmrc for protection"
+        echo "  Add 'ignore-scripts=true' to .npmrc for protection"
     fi
 else
     print_warn "No .npmrc file found (protection not enabled)"
-    echo "  ℹ️  Create .npmrc with 'ignore-scripts=true' to block malicious scripts"
+    echo "  Create .npmrc with 'ignore-scripts=true' to block malicious scripts"
 fi
 
 # Check 10: Lock File Integrity
@@ -185,7 +185,7 @@ if [ -f "ai-intent-tracker/pnpm-lock.yaml" ]; then
         print_ok "Lock file has no uncommitted changes"
     else
         print_warn "Lock file has uncommitted changes"
-        echo "  ℹ️  Review changes carefully: git diff ai-intent-tracker/pnpm-lock.yaml"
+        echo "  Review changes carefully: git diff ai-intent-tracker/pnpm-lock.yaml"
     fi
 else
     print_warn "No lock file found"
@@ -227,7 +227,7 @@ elif [ $WARNINGS -gt 0 ]; then
     echo ""
     exit 0
 else
-    echo -e "${GREEN}✅ ALL CHECKS PASSED ✅${NC}"
+    echo -e "${GREEN} ALL CHECKS PASSED ${NC}"
     echo ""
     echo "No compromise detected. Repository appears secure."
     echo ""
