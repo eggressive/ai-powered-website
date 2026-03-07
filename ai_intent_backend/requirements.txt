@@ -3,7 +3,7 @@ click==8.3.1
 Flask==3.1.2
 flask-cors==6.0.1
 Flask-SQLAlchemy==3.1.1
-Flask-Migrate==4.0.5
+Flask-Migrate==4.1.0
 Flask-Limiter==4.1.1
 python-dotenv==1.2.1
 marshmallow==4.1.0
