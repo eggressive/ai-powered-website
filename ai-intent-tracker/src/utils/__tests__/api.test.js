@@ -14,41 +14,66 @@ describe('api utility', () => {
   })
 
   describe('apiFetch', () => {
-    const mockFetch = vi.fn()
+    let originalFetch
 
     beforeEach(() => {
-      mockFetch.mockClear()
-      global.fetch = mockFetch
+      originalFetch = global.fetch
+      global.fetch = vi.fn()
     })
 
     afterEach(() => {
-      vi.restoreAllMocks()
+      global.fetch = originalFetch
     })
 
     it('prepends API_BASE_URL to the path', async () => {
-      mockFetch.mockResolvedValueOnce({ ok: true })
+      global.fetch.mockResolvedValueOnce({ ok: true })
 
       const { apiFetch, API_BASE_URL } = await import('../api.js')
       await apiFetch('/session/start', { method: 'POST', body: '{}' })
 
-      expect(mockFetch).toHaveBeenCalledWith(
-        `${API_BASE_URL}/session/start`,
+      const base = API_BASE_URL.replace(/\/+$/, '')
+      expect(global.fetch).toHaveBeenCalledWith(
+        `${base}/session/start`,
         expect.objectContaining({ method: 'POST' })
       )
     })
 
+    it('normalizes URL when base has trailing slash and path has no leading slash', async () => {
+      const { apiFetch, API_BASE_URL } = await import('../api.js')
+      global.fetch.mockResolvedValueOnce({ ok: true })
+
+      await apiFetch('session/start')
+
+      const base = API_BASE_URL.replace(/\/+$/, '')
+      const calledUrl = global.fetch.mock.calls[0][0]
+      expect(calledUrl).toBe(`${base}/session/start`)
+      // Ensure no double slashes in path portion
+      const urlPath = new URL(calledUrl).pathname
+      expect(urlPath).not.toMatch(/\/\//)
+    })
+
     it('sets Content-Type to application/json when body is present', async () => {
-      mockFetch.mockResolvedValueOnce({ ok: true })
+      global.fetch.mockResolvedValueOnce({ ok: true })
 
       const { apiFetch } = await import('../api.js')
       await apiFetch('/test', { method: 'POST', body: JSON.stringify({ a: 1 }) })
 
-      const callHeaders = mockFetch.mock.calls[0][1].headers
-      expect(callHeaders['Content-Type']).toBe('application/json')
+      const callHeaders = global.fetch.mock.calls[0][1].headers
+      expect(callHeaders.get('Content-Type')).toBe('application/json')
+    })
+
+    it('does not set Content-Type when there is no body', async () => {
+      global.fetch.mockResolvedValueOnce({ ok: true })
+
+      const { apiFetch } = await import('../api.js')
+      await apiFetch('/test', { method: 'GET' })
+
+      const callHeaders = global.fetch.mock.calls[0][1].headers
+      expect(callHeaders.has('Content-Type')).toBe(false)
     })
 
     it('does not override an existing Content-Type header', async () => {
-      mockFetch.mockResolvedValueOnce({ ok: true })
+      global.fetch.mockResolvedValueOnce({ ok: true })
 
       const { apiFetch } = await import('../api.js')
       await apiFetch('/test', {
@@ -57,12 +82,42 @@ describe('api utility', () => {
         headers: { 'Content-Type': 'text/plain' }
       })
 
-      const callHeaders = mockFetch.mock.calls[0][1].headers
-      expect(callHeaders['Content-Type']).toBe('text/plain')
+      const callHeaders = global.fetch.mock.calls[0][1].headers
+      expect(callHeaders.get('Content-Type')).toBe('text/plain')
+    })
+
+    it('preserves Headers instances passed as options.headers', async () => {
+      global.fetch.mockResolvedValueOnce({ ok: true })
+
+      const { apiFetch } = await import('../api.js')
+      const inputHeaders = new Headers({ 'X-Custom': 'value' })
+      await apiFetch('/test', {
+        method: 'POST',
+        body: '{}',
+        headers: inputHeaders
+      })
+
+      const callHeaders = global.fetch.mock.calls[0][1].headers
+      expect(callHeaders.get('X-Custom')).toBe('value')
+      expect(callHeaders.get('Content-Type')).toBe('application/json')
+    })
+
+    it('preserves tuple array headers', async () => {
+      global.fetch.mockResolvedValueOnce({ ok: true })
+
+      const { apiFetch } = await import('../api.js')
+      await apiFetch('/test', {
+        method: 'POST',
+        body: '{}',
+        headers: [['X-Token', 'abc123']]
+      })
+
+      const callHeaders = global.fetch.mock.calls[0][1].headers
+      expect(callHeaders.get('X-Token')).toBe('abc123')
     })
 
     it('throws on non-ok response with status', async () => {
-      mockFetch.mockResolvedValueOnce({ ok: false, status: 404 })
+      global.fetch.mockResolvedValueOnce({ ok: false, status: 404 })
 
       const { apiFetch } = await import('../api.js')
 
@@ -71,7 +126,7 @@ describe('api utility', () => {
 
     it('returns the response on success', async () => {
       const fakeResponse = { ok: true, json: () => Promise.resolve({ id: 1 }) }
-      mockFetch.mockResolvedValueOnce(fakeResponse)
+      global.fetch.mockResolvedValueOnce(fakeResponse)
 
       const { apiFetch } = await import('../api.js')
       const res = await apiFetch('/data')

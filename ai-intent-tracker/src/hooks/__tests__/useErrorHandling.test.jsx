@@ -1,5 +1,6 @@
 import { describe, it, expect, vi } from 'vitest'
 import { render, screen, fireEvent } from '@testing-library/react'
+import React from 'react'
 import { ErrorBoundary } from '../useErrorHandling.jsx'
 
 // A component that throws on demand
@@ -69,26 +70,31 @@ describe('ErrorBoundary', () => {
   })
 
   it('recovers when Try Again is clicked', () => {
-    let shouldThrow = true
-    let boundaryKey = 0
+    // Use real React state so clicking Try Again (which calls setState
+    // inside ErrorBoundary) re-renders the child without remounting.
+    let throwControl = { shouldThrow: true }
 
-    function Wrapper() {
-      return (
-        <ErrorBoundary key={boundaryKey}>
-          <ThrowingChild shouldThrow={shouldThrow} />
-        </ErrorBoundary>
-      )
+    function StatefulChild() {
+      if (throwControl.shouldThrow) {
+        throw new Error('Test explosion')
+      }
+      return <div>All good</div>
     }
 
-    const { rerender } = render(<Wrapper />)
+    render(
+      <ErrorBoundary>
+        <StatefulChild />
+      </ErrorBoundary>
+    )
 
+    // Error boundary shows fallback
     expect(screen.getByText(/something went wrong/i)).toBeInTheDocument()
 
-    shouldThrow = false
+    // Stop the child from throwing, then click Try Again
+    throwControl.shouldThrow = false
     fireEvent.click(screen.getByText(/try again/i))
-    boundaryKey += 1
-    rerender(<Wrapper />)
 
+    // ErrorBoundary resets its state and re-renders children successfully
     expect(screen.getByText('All good')).toBeInTheDocument()
   })
 })
