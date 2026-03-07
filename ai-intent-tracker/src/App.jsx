@@ -22,10 +22,8 @@ import {
   AlertTriangle,
   Settings
 } from 'lucide-react'
+import { API_BASE_URL } from '@/utils/api'
 import './App.css'
-
-// Backend API configuration
-const API_BASE_URL = window.location.origin + '/api'
 
 function App() {
   const [userSession, setUserSession] = useState({
