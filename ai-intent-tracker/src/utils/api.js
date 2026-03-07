@@ -19,11 +19,15 @@ export const API_BASE_URL =
  * @returns {Promise<Response>}
  */
 export async function apiFetch(path, options = {}) {
-  const url = `${API_BASE_URL}${path}`
+  // Normalize URL joining: strip trailing slash from base, ensure leading slash on path
+  const base = API_BASE_URL.replace(/\/+$/, '')
+  const normalizedPath = path.startsWith('/') ? path : `/${path}`
+  const url = `${base}${normalizedPath}`
 
-  const headers = { ...options.headers }
-  if (options.body && !headers['Content-Type']) {
-    headers['Content-Type'] = 'application/json'
+  // Normalize headers: support Headers instances, tuple arrays, and plain objects
+  const headers = new Headers(options.headers)
+  if (options.body && !headers.has('Content-Type')) {
+    headers.set('Content-Type', 'application/json')
   }
 
   const response = await fetch(url, { ...options, headers })
