@@ -35,7 +35,7 @@ class ErrorBoundaryClass extends React.Component {
     console.error('Error caught by boundary:', error, errorInfo)
     
     // Log to external service in production
-    if (process.env.NODE_ENV === 'production') {
+    if (import.meta.env.MODE === 'production') {
       this.logErrorToService(error, errorInfo)
     }
     
@@ -94,7 +94,7 @@ class ErrorBoundaryClass extends React.Component {
             </AlertDescription>
           </Alert>
           
-          {process.env.NODE_ENV === 'development' && this.state.error && (
+          {import.meta.env.MODE === 'development' && this.state.error && (
             <Alert>
               <Info className="h-4 w-4" />
               <AlertDescription>

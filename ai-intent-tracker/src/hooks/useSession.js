@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
+import { API_BASE_URL } from '@/utils/api'
 
 /**
  * Generate a unique session ID
@@ -10,16 +11,6 @@ const generateSessionId = () => {
     return `sess_${crypto.randomUUID().replace(/-/g, '').slice(0, 9)}`
   }
   return `sess_${Math.random().toString(36).substr(2, 9)}`
-}
-
-/**
- * Get the API base URL from window location or default
- */
-const getApiBaseUrl = () => {
-  if (typeof window !== 'undefined') {
-    return window.location.origin + '/api'
-  }
-  return '/api'
 }
 
 /**
@@ -66,9 +57,7 @@ export function useSession(initialConsent = {}, { autoInit = true } = {}) {
     
     try {
       const sessionId = generateSessionId()
-      const apiBaseUrl = getApiBaseUrl()
-      
-      const response = await fetch(`${apiBaseUrl}/session/start`, {
+      const response = await fetch(`${API_BASE_URL}/session/start`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -161,8 +150,7 @@ export function useSession(initialConsent = {}, { autoInit = true } = {}) {
     // Update consent with backend if session exists
     if (session.sessionId) {
       try {
-        const apiBaseUrl = getApiBaseUrl()
-        await fetch(`${apiBaseUrl}/privacy/consent`, {
+        await fetch(`${API_BASE_URL}/privacy/consent`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -187,8 +175,7 @@ export function useSession(initialConsent = {}, { autoInit = true } = {}) {
     if (!session.sessionId) return
     
     try {
-      const apiBaseUrl = getApiBaseUrl()
-      const response = await fetch(`${apiBaseUrl}/session/update`, {
+      const response = await fetch(`${API_BASE_URL}/session/update`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -217,8 +204,7 @@ export function useSession(initialConsent = {}, { autoInit = true } = {}) {
     if (!session.sessionId) return
     
     try {
-      const apiBaseUrl = getApiBaseUrl()
-      await fetch(`${apiBaseUrl}/session/end`, {
+      await fetch(`${API_BASE_URL}/session/end`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
